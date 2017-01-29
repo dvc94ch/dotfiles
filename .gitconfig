@@ -1,0 +1,15 @@
+[user]
+	name = David Craven
+	email = david@craven.ch
+[alias]
+	unadd = reset HEAD
+	history = log --oneline --abbrev-commit --all --graph --decorate --color
+[core]
+	editor = $EDITOR
+[sendemail]
+	smtpencryption = tls
+	smtpserver = smtp.mailgun.org
+	smtpserverport = 587
+	smtpuser = david@craven.ch
+[url "https://github.com/"]
+  insteadOf = gh://

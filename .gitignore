@@ -1,0 +1,60 @@
+# documents
+/annex
+/repos
+/.dotfiles
+
+# guix stuff
+/.guix-profile
+
+# language stuff
+/.antigen
+/.cargo
+/.cabal
+/.ghc
+/.idris
+/.kicad
+/.eeschema
+
+# nix stuff
+/.nix-channels
+/.nix-defexpr
+/.nixpkgs
+/.nix-profile
+
+# ethereum - ignore everything except keystore
+/.ethereum/*
+!/.ethereum/keystore
+
+# gnupg - ignore everything except gpg files
+/.gnupg/*
+!/.gnupg/*.gpg
+
+# gnucash - ignore everything except gnucash files
+/.gnucash/*
+!/.gnucash/books
+/.gnucash/books/*
+!/.gnucash/books/*.gnucash
+
+# command history
+/.*_history
+
+# .local and .config
+/.config/*
+/.local/*
+!/.config/user-dirs.dirs
+!/.config/gtk-3.0
+
+# misc stuff
+/.ICEauthority
+/.Xauthority
+/.xsession-errors
+/.esd_auth
+/.zcompdump
+/.lesshst
+/.cache
+/.dbus
+/.thumbnails
+/.ssh/known_hosts
+/.mutt/cache
+/.pki
+/.local

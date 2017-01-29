@@ -1,0 +1,35 @@
+# shell
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ls='ls -F --color'
+alias la='ls -la'
+alias rm='rm -vi'
+alias cp='cp -vi'
+alias mv='mv -vi'
+alias grep='grep --color=auto'
+
+# editor
+alias e='emacsclient -t'
+alias ec='emacsclient -c'
+
+# dirs
+alias docs='cd $XDG_DOCUMENTS_DIR'
+alias dls='cd $XDG_DOWNLOAD_DIR'
+
+# gnome
+alias term='gnome-terminal'
+alias nau='nautilus . &'
+
+# misc
+alias cls='printf "\033c"'
+alias week='date +%V'
+alias pb='curl -F "sprunge=<-" http://sprunge.us'
+alias json='python -m json.tool'
+
+# vms
+alias sshvm='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 10022'
+alias rv='remote-viewer spice://localhost:5930'
+
+# guix
+alias config='$HOME/.guix-profile/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias guix='$HOME/repos/guix/pre-inst-env guix'

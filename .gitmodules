@@ -1,0 +1,11 @@
+[submodule "antigen"]
+	path=.include/antigen
+	url=https://github.com/zsh-users/antigen
+
+[submodule "spacemacs"]
+	path=.emacs.d
+	url=https://github.com/syl20bnr/spacemacs
+
+[submodule "mutt-colors-solarized"]
+	path=.mutt/mutt-colors-solarized
+	url=https://github.com/altercation/mutt-colors-solarized
