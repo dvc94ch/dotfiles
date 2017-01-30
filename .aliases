@@ -31,5 +31,5 @@ alias sshvm='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 
 alias rv='remote-viewer spice://localhost:5930'
 
 # guix
-alias config='$HOME/.guix-profile/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias guix='$HOME/repos/guix/pre-inst-env guix'
+alias config='/run/current-system/profile/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+# alias guix='$HOME/repos/guix/pre-inst-env guix'
