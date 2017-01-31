@@ -5,4 +5,4 @@ export EDITOR='emacsclient -c --alternate-editor nano'
 export BROWSER='chromium-browser'
 
 # guix packages
-# export GUIX_PACKAGE_PATH='~/repos/guix-nonfree'
+export GUIX_PACKAGE_PATH='~/repos/guix-nonfree'
