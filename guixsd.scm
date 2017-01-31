@@ -1,13 +1,12 @@
-(use-modules (guix packages)
+(use-modules (guix build-system trivial)
              (guix download)
              (guix gexp)
              (guix git-download)
-             (guix build-system trivial)
+             (guix packages)
              (gnu)
              (gnu system nss))
 (use-service-modules avahi base cups dbus desktop networking sddm xorg)
-(use-package-modules admin certs cups curl disk dns emacs
-                     fonts fontutils gnome
+(use-package-modules admin certs cups curl disk dns emacs fonts fontutils gnome
                      gnupg linux mail password-utils shells ssh terminals
                      version-control)
 
@@ -95,34 +94,44 @@
                    gptfdisk tree which
                    nss-certs bind curl isc-dhcp gptfdisk wpa-supplicant
                    gnupg pinentry openssh picocom mutt
-                   git ;git-send-email git-crypt git-annex
+                   git (git "send-email") ; git-crypt git-annex
                    fontconfig font-dejavu font-ubuntu font-gnu-unifont
                    password-store hplip
                    %base-packages))
 
-  (services (cons* ;;(service network-manager-service-type
+  (services (cons* ;; Network.
+                   ;;(service network-manager-service-type
                    ;; (network-manager-configuration))
                    (dhcp-client-service)
                    ;;(service wpa-supplicant-service-type wpa-supplicant)
 
+                   ;; Selected services from %desktop-services.
                    (avahi-service)
                    (colord-service)
                    (dbus-service)
                    (elogind-service)
                    (geoclue-service)
-                   (ntp-service)
                    (polkit-service)
                    (udisks-service)
                    (upower-service)
+                   (ntp-service)
 
+                   ;; Display manager and desktop.
                    (sddm-service)
                    (gnome-desktop-service)
                    (xfce-desktop-service)
 
+                   ;; Misc.
                    (bluetooth-service)
                    (service cups-service-type
                     (cups-configuration
                      (web-interface? #t)))
+
+                   ;; Jobs.
+                   ;; TODO: Try mcron and rotlog.
+
+                   ;; Other.
+                   (rngd-service)
                    %base-services))
 
   ;; Allow resolution of '.local' host names with mDNS.
