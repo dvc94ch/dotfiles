@@ -1,14 +1,13 @@
-(use-modules (guix build-system trivial)
-             (guix download)
-             (guix gexp)
-             (guix git-download)
-             (guix packages)
-             (gnu)
-             (gnu system nss))
+(use-modules (gnu) (gnu system linux-initrd) (gnu system nss)
+             (guix download) (guix git-download)
+             (guix gexp) (guix modules) (guix monads) (guix packages) (guix store)
+             (guix build-system gnu)
+             (guix build-system trivial)
+             (ice-9 match))
 (use-service-modules avahi base cups dbus desktop networking sddm xorg)
-(use-package-modules admin certs cups curl disk dns emacs fonts fontutils gnome
-                     gnupg linux mail password-utils shells ssh terminals
-                     version-control)
+(use-package-modules admin certs cpio cups curl disk dns emacs firmware fonts
+                     fontutils gnome gnupg linux mail password-utils shells ssh
+                     terminals version-control)
 
 (define-public linux-firmware
   (let ((commit "6d3bc8886517d171068fd1263176b8b5c51df204"))
@@ -18,9 +17,8 @@
       (source (origin
                 (method git-fetch)
                 (uri (git-reference
-                        (url (string-append
-                              "https://github.com/wkennington/linux-firmware"))
-                        (commit commit)))
+                      (url "https://github.com/wkennington/linux-firmware")
+                      (commit commit)))
                 (sha256
                  (base32
                   "15qm9fzv8rjhzyrqjdd4dqd6slymiz0w6wn7likbfjvh2szczafs"))))
@@ -30,7 +28,6 @@
          #:builder
          (begin
            (use-modules (guix build utils))
-
            (let* ((source   (assoc-ref %build-inputs "source"))
                   (out      (assoc-ref %outputs "out"))
                   (firmware (string-append out "/lib/firmware")))
@@ -41,18 +38,114 @@
       (description "Linux firmware.")
       (license #f))))
 
+(define-public microcode
+  (package
+    (name "microcode")
+    (version "20161104")
+    (source #f)
+    (build-system gnu-build-system)
+    (native-inputs
+     `(;;("cpio" ,cpio)
+       ("microcode.dat"
+        ,(origin
+           (method url-fetch)
+           (uri (string-append "http://downloadmirror.intel.com/26400/eng/"
+                               "microcode-" version ".tgz"))
+           (sha256
+            (base32
+             "1lg3bvznvwcxf66k038c57brkcxfva8crpnzj5idmczr5yk4q5bh"))))
+       ("microcode2ucode"
+        ,(origin
+           (method url-fetch)
+           (uri (string-append "https://raw.githubusercontent.com/NixOS/nixpkgs/"
+                               "56904d7c423f2b13b37fbd29f39bbb4b52bc7824"
+                               "/pkgs/os-specific/linux/microcode/"
+                               "intel-microcode2ucode.c"))
+           (sha256
+            (base32
+             "1ph3zq76dkikvxyrbpaxx8d9302bzl3n1d71qzcx790ncfb3m883"))))))
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (delete 'unpack)
+         (delete 'configure)
+         (delete 'check)
+         (delete 'install)
+         (replace 'build
+           (lambda* (#:key inputs outputs #:allow-other-keys)
+             (let* ((out (assoc-ref outputs "out"))
+                    (mc  (assoc-ref inputs "microcode.dat"))
+                    (m2u (assoc-ref inputs "microcode2ucode"))
+                    (fmw (string-append out "/kernel/x86/microcode/GenuineIntel.bin")))
+                    ;;(cmd (format #f "bash -c \"echo microcode.bin | cpio -o -H newc -R 0:0 > ~a/intel-ucode.img\"" out)))
+               (system* "tar" "-xf" mc)
+               (system* "gcc" "-Wall" "-o" "m2u" m2u)
+               (system* "./m2u" "microcode.dat")
+               (mkdir-p (dirname fmw))
+               (copy-file "microcode.bin" fmw)))))))
+               ;;(zero? (system cmd))))))))
+    (home-page "http://www.intel.com")
+    (synopsis "Microcode for Intel processors")
+    (description "Microcode for Intel processors.")
+    (license #f)))
+
 (define-public linux
   (package
     (inherit linux-libre)
     (version "4.9.6")
     (source (origin
               (method url-fetch)
-              (uri (string-append
-                    "https://cdn.kernel.org/pub/linux/kernel/v4.x/"
-                    "linux-" version ".tar.xz"))
+              (uri (string-append "https://cdn.kernel.org/pub/linux/kernel/v4.x/"
+                                  "linux-" version ".tar.xz"))
               (sha256
                (base32
-                "16yfrydxcdlbm8vmfqirc0gshsbka6mjgfwc2wqs422v19vsz4zl"))))))
+                "16yfrydxcdlbm8vmfqirc0gshsbka6mjgfwc2wqs422v19vsz4zl"))))
+    (native-inputs
+     `(("kconfig" ,(local-file "/home/dvc/kernel-config"))
+       ,@(filter (match-lambda
+                   (("kconfig" _) #f)
+                   (_ #t))
+                 (package-native-inputs linux-libre))))))
+
+(define* (initrd file-systems #:key #:allow-other-keys)
+
+  (define initrd-linux-modules
+    ;; Modules added to the initrd and loaded from the initrd.
+    (list "btrfs"
+          "i2c-hid"))
+
+  (define initrd-packages
+    ;; Packages to be copied on the initrd.
+    (list btrfs-progs/static
+          microcode))
+
+  (define flat-linux-module-directory
+    (@@ (gnu system linux-initrd) flat-linux-module-directory))
+
+  (mlet %store-monad ((kodir (flat-linux-module-directory linux
+                                                          initrd-linux-modules)))
+    (expression->initrd
+     (with-imported-modules (source-module-closure
+                             '((gnu build linux-boot)
+                               (guix build utils)
+                               (guix build bournish)
+                               (gnu build file-systems)))
+       #~(begin
+           (use-modules (gnu build linux-boot)
+                        (guix build utils)
+                        (guix build bournish) ;add the 'bournish' meta-command
+                        (srfi srfi-26))
+
+           (with-output-to-port (%make-void-port "w")
+             (lambda ()
+               (set-path-environment-variable "PATH" '("bin" "sbin")
+                                              '#$initrd-packages)))
+
+           ;; (copy-file (string-append #$microcode "/kernel/x86/microcode/GenuineIntel.bin")
+           (boot-system #:mounts '#$(map file-system->spec file-systems)
+                        #:linux-modules '#$initrd-linux-modules
+                        #:linux-module-directory '#$kodir)))
+     #:name "base-initrd")))
 
 (operating-system
   (host-name "xps13")
@@ -62,15 +155,16 @@
   (bootloader (grub-configuration (device "/dev/nvme0n1")))
   (kernel linux)
   (firmware (list linux-firmware))
+  (initrd initrd)
 
-  (file-systems (cons* (file-system
+  (file-systems (cons* #!(file-system
                          (device "/dev/nvme0n1p2")
                          ;; FIXME: FAT32 labels are not supported.
                          ;;(title 'label)
                          (mount-point "/boot/efi")
                          (type "vfat")
                          ;; FIXME: Required so base-initrd gets updated.
-                         (needed-for-boot? #t))
+                         (needed-for-boot? #t))!#
                        (file-system
                          (device "root")
                          (title 'label)
@@ -94,7 +188,7 @@
                    gptfdisk tree which
                    nss-certs bind curl isc-dhcp gptfdisk wpa-supplicant
                    gnupg pinentry openssh picocom mutt
-                   git (git "send-email") ; git-crypt git-annex
+                   git ;'(,git "send-email") ; git-crypt git-annex
                    fontconfig font-dejavu font-ubuntu font-gnu-unifont
                    password-store hplip
                    %base-packages))
@@ -121,7 +215,6 @@
                    (gnome-desktop-service)
                    (xfce-desktop-service)
 
-                   ;; Misc.
                    (bluetooth-service)
                    (service cups-service-type
                     (cups-configuration
@@ -130,7 +223,6 @@
                    ;; Jobs.
                    ;; TODO: Try mcron and rotlog.
 
-                   ;; Other.
                    (rngd-service)
                    %base-services))
 
