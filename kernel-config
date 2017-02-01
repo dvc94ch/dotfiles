@@ -919,8 +919,8 @@ CONFIG_BLK_DEV_RAM_SIZE=65536
 CONFIG_BLK_DEV_RAM_DAX=y
 CONFIG_XEN_BLKDEV_FRONTEND=y
 CONFIG_VIRTIO_BLK=y
-CONFIG_NVME_CORE=m
-CONFIG_BLK_DEV_NVME=m
+CONFIG_NVME_CORE=y
+CONFIG_BLK_DEV_NVME=y
 
 #
 # Misc devices
@@ -2154,66 +2154,6 @@ CONFIG_XEN_AUTO_XLATE=y
 CONFIG_XEN_ACPI=y
 CONFIG_XEN_SYMS=y
 CONFIG_XEN_HAVE_VPMU=y
-CONFIG_STAGING=y
-
-#
-# IIO staging drivers
-#
-
-#
-# Accelerometers
-#
-
-#
-# Analog to digital converters
-#
-
-#
-# Analog digital bi-direction converters
-#
-
-#
-# Capacitance to digital converters
-#
-
-#
-# Direct Digital Synthesis
-#
-
-#
-# Digital gyroscope sensors
-#
-
-#
-# Network Analyzer, Impedance Converters
-#
-
-#
-# Light sensors
-#
-
-#
-# Active energy metering IC
-#
-
-#
-# Resolver to digital converters
-#
-
-#
-# Triggers - standalone
-#
-
-#
-# Speakup console speech
-#
-CONFIG_STAGING_MEDIA=y
-
-#
-# Android
-#
-CONFIG_CRYPTO_SKEIN=y
-CONFIG_UNISYSSPAR=y
 CONFIG_X86_PLATFORM_DEVICES=y
 CONFIG_DELL_SMBIOS=m
 CONFIG_DELL_LAPTOP=m
@@ -2221,7 +2161,6 @@ CONFIG_DELL_WMI=m
 CONFIG_ACPI_WMI=m
 CONFIG_INTEL_HID_EVENT=m
 CONFIG_INTEL_PMC_CORE=y
-CONFIG_CHROME_PLATFORMS=y
 CONFIG_CLKDEV_LOOKUP=y
 CONFIG_HAVE_CLK_PREPARE=y
 CONFIG_COMMON_CLK=y
@@ -2551,7 +2490,7 @@ CONFIG_TRACE_IRQFLAGS_SUPPORT=y
 # printk and dmesg options
 #
 CONFIG_PRINTK_TIME=y
-CONFIG_MESSAGE_LOGLEVEL_DEFAULT=4
+CONFIG_MESSAGE_LOGLEVEL_DEFAULT=7
 CONFIG_BOOT_PRINTK_DELAY=y
 CONFIG_DYNAMIC_DEBUG=y
 
@@ -2806,7 +2745,8 @@ CONFIG_HAVE_KVM_IRQ_BYPASS=y
 CONFIG_VIRTUALIZATION=y
 CONFIG_KVM=m
 CONFIG_KVM_INTEL=m
-CONFIG_KVM_DEVICE_ASSIGNMENT=y
+CONFIG_VHOST_NET=m
+CONFIG_VHOST=m
 CONFIG_BINARY_PRINTF=y
 
 #
