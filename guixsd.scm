@@ -1,6 +1,7 @@
 (use-modules (gnu) (gnu system linux-initrd) (gnu system nss)
              (guix download) (guix git-download)
-             (guix gexp) (guix modules) (guix monads) (guix packages) (guix store)
+             (guix gexp) (guix modules) (guix monads) (guix packages)
+             (guix store) (guix utils)
              (guix build-system gnu)
              (guix build-system trivial)
              (ice-9 match))
@@ -76,14 +77,12 @@
              (let* ((out (assoc-ref outputs "out"))
                     (mc  (assoc-ref inputs "microcode.dat"))
                     (m2u (assoc-ref inputs "microcode2ucode"))
-                    (fmw (string-append out "/kernel/x86/microcode/GenuineIntel.bin")))
-                    ;;(cmd (format #f "bash -c \"echo microcode.bin | cpio -o -H newc -R 0:0 > ~a/intel-ucode.img\"" out)))
+                    (fmw (string-append out "/lib/firmware/microcode")))
                (system* "tar" "-xf" mc)
                (system* "gcc" "-Wall" "-o" "m2u" m2u)
                (system* "./m2u" "microcode.dat")
-               (mkdir-p (dirname fmw))
-               (copy-file "microcode.bin" fmw)))))))
-               ;;(zero? (system cmd))))))))
+               (mkdir-p fmw)
+               (copy-file "microcode.bin" (string-append fmw "/GenuineIntel.bin"))))))))
     (home-page "http://www.intel.com")
     (synopsis "Microcode for Intel processors")
     (description "Microcode for Intel processors.")
@@ -105,7 +104,21 @@
        ,@(filter (match-lambda
                    (("kconfig" _) #f)
                    (_ #t))
-                 (package-native-inputs linux-libre))))))
+                 (package-native-inputs linux-libre))))
+    (inputs
+     `(("microcode" ,microcode)
+       ,@(package-inputs linux-libre)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments linux-libre)
+       ((#:phases phases)
+        `(modify-phases ,phases
+           (add-after 'unpack 'patch-microcode-path
+             (lambda* (#:key inputs #:allow-other-keys)
+               (let ((microcode (assoc-ref inputs "microcode")))
+                 (substitute* "arch/x86/kernel/cpu/microcode/intel.c"
+                   (("kernel/x86/microcode/GenuineIntel.bin")
+                    (string-append "/lib/firmware/microcode/GenuineIntel.bin"))))
+               #t))))))))
 
 (define* (initrd file-systems #:key #:allow-other-keys)
 
@@ -194,10 +207,9 @@
                    %base-packages))
 
   (services (cons* ;; Network.
-                   ;;(service network-manager-service-type
-                   ;; (network-manager-configuration))
-                   (dhcp-client-service)
-                   ;;(service wpa-supplicant-service-type wpa-supplicant)
+                   (service network-manager-service-type
+                    (network-manager-configuration))
+                   (service wpa-supplicant-service-type wpa-supplicant)
 
                    ;; Selected services from %desktop-services.
                    (avahi-service)
@@ -213,7 +225,6 @@
                    ;; Display manager and desktop.
                    (sddm-service)
                    (gnome-desktop-service)
-                   (xfce-desktop-service)
 
                    (bluetooth-service)
                    (service cups-service-type

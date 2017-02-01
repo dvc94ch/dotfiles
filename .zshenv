@@ -8,4 +8,4 @@ export BROWSER='chromium-browser'
 # export GUIX_PACKAGE_PATH='$HOME/repos/guix-nonfree'
 
 # certs
-export GIT_SSL_CAINFO='$SSL_CERT_FILE'
+export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
