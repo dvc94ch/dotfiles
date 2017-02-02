@@ -7,8 +7,8 @@
              (ice-9 match))
 (use-service-modules avahi base cups dbus desktop networking sddm xorg)
 (use-package-modules admin certs cpio cups curl disk dns emacs firmware fonts
-                     fontutils gnome gnupg linux mail password-utils shells ssh
-                     terminals version-control)
+                     fontutils gnome gnupg linux mail password-utils patchutils
+                     shells ssh terminals version-control)
 
 (define-public linux-firmware
   (let ((commit "6d3bc8886517d171068fd1263176b8b5c51df204"))
@@ -29,11 +29,11 @@
          #:builder
          (begin
            (use-modules (guix build utils))
-           (let* ((source   (assoc-ref %build-inputs "source"))
-                  (out      (assoc-ref %outputs "out"))
-                  (firmware (string-append out "/lib/firmware")))
-             (mkdir-p firmware)
-             (copy-recursively source firmware)))))
+           (let* ((src (assoc-ref %build-inputs "source"))
+                  (out (assoc-ref %outputs "out"))
+                  (fmw (string-append out "/lib/firmware")))
+             (mkdir-p fmw)
+             (copy-recursively src fmw)))))
       (home-page "https://github.com/wkennington/linux-firmware")
       (synopsis "Linux firmware")
       (description "Linux firmware.")
@@ -154,7 +154,6 @@
                (set-path-environment-variable "PATH" '("bin" "sbin")
                                               '#$initrd-packages)))
 
-           ;; (copy-file (string-append #$microcode "/kernel/x86/microcode/GenuineIntel.bin")
            (boot-system #:mounts '#$(map file-system->spec file-systems)
                         #:linux-modules '#$initrd-linux-modules
                         #:linux-module-directory '#$kodir)))
@@ -196,12 +195,12 @@
                 (shell #~(string-append #$zsh "/bin/zsh")))
                %base-user-accounts))
 
-  (packages (cons* gnome-themes-standard ;gnome-disk-utility
+  (packages (cons* gnome-themes-standard gnome-calculator gnome-disk-utility
                    emacs font-adobe-source-code-pro
-                   gptfdisk tree which
-                   nss-certs bind curl isc-dhcp gptfdisk wpa-supplicant
+                   colordiff gptfdisk tree which
+                   nss-certs bind curl gptfdisk
                    gnupg pinentry openssh picocom mutt
-                   git ;'(,git "send-email") ; git-crypt git-annex
+                   git `(,git "send-email") git-crypt ; git-annex
                    fontconfig font-dejavu font-ubuntu font-gnu-unifont
                    password-store hplip
                    %base-packages))

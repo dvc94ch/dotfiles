@@ -7,6 +7,7 @@ alias rm='rm -vi'
 alias cp='cp -vi'
 alias mv='mv -vi'
 alias grep='grep --color=auto'
+alias sudo='sudo '
 
 # editor
 alias e='emacsclient -t'
@@ -29,7 +30,6 @@ alias json='python -m json.tool'
 # vms
 alias sshvm='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 10022'
 alias rv='remote-viewer spice://localhost:5930'
-
-# guix
-alias config='/run/current-system/profile/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-# alias guix='$HOME/repos/guix/pre-inst-env guix'
+alias config='/run/current-system/profile/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias ggit='/run/current-system/profile/bin/git --git-dir=$HOME/repos/guix/.git --work-tree=$HOME/repos/guix'
+alias guix-dev='$HOME/repos/guix/pre-inst-env guix'

@@ -9,3 +9,6 @@ export BROWSER='chromium-browser'
 
 # certs
 export GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt
+
+# gstreamer
+export GST_PLUGIN_PATH=$HOME/.guix-profile/lib/gstreamer-1.0:/run/current-system/profile/lib/gstreamer-1.0
