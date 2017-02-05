@@ -5,10 +5,10 @@
              (guix build-system gnu)
              (guix build-system trivial)
              (ice-9 match))
-(use-service-modules avahi base cups dbus desktop networking sddm xorg)
+(use-service-modules admin avahi base cups dbus desktop mcron networking sddm xorg)
 (use-package-modules admin certs cpio cups curl disk dns emacs firmware fonts
-                     fontutils gnome gnupg linux mail password-utils patchutils
-                     shells ssh terminals version-control)
+                     fontutils gnome gnupg gstreamer idutils linux mail
+                     password-utils patchutils shells ssh terminals version-control)
 
 (define-public linux-firmware
   (let ((commit "6d3bc8886517d171068fd1263176b8b5c51df204"))
@@ -122,10 +122,10 @@
 
 (define* (initrd file-systems #:key #:allow-other-keys)
 
-  (define initrd-linux-modules
+  (define initrd-linux-modules '())
     ;; Modules added to the initrd and loaded from the initrd.
-    (list "btrfs"
-          "i2c-hid"))
+    ;; (list "btrfs"
+    ;;      "i2c-hid"))
 
   (define initrd-packages
     ;; Packages to be copied on the initrd.
@@ -166,6 +166,7 @@
 
   (bootloader (grub-configuration (device "/dev/nvme0n1")))
   (kernel linux)
+  (kernel-arguments '("ipv6.disable=1"))
   (firmware (list linux-firmware))
   (initrd initrd)
 
@@ -198,42 +199,45 @@
   (packages (cons* gnome-themes-standard gnome-calculator gnome-disk-utility
                    emacs font-adobe-source-code-pro
                    colordiff gptfdisk tree which
-                   nss-certs bind curl gptfdisk
+                   nss-certs `(,bind "utils") curl gptfdisk
                    gnupg pinentry openssh picocom mutt
                    git `(,git "send-email") git-crypt ; git-annex
                    fontconfig font-dejavu font-ubuntu font-gnu-unifont
+                   gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav
                    password-store hplip
                    %base-packages))
 
-  (services (cons* ;; Network.
+  (services (cons* (dbus-service)
+                   (elogind-service)
+                   (polkit-service)
+                   (rngd-service)
+                   (service mcron-service-type
+                            (mcron-configuration))
+                   (service rottlog-service-type
+                            (rottlog-configuration))
+
+                   ;; Network.
                    (service network-manager-service-type
                     (network-manager-configuration))
                    (service wpa-supplicant-service-type wpa-supplicant)
 
-                   ;; Selected services from %desktop-services.
-                   (avahi-service)
-                   (colord-service)
-                   (dbus-service)
-                   (elogind-service)
-                   (geoclue-service)
-                   (polkit-service)
-                   (udisks-service)
-                   (upower-service)
+                   ;; (avahi-service)
                    (ntp-service)
 
                    ;; Display manager and desktop.
                    (sddm-service)
                    (gnome-desktop-service)
 
+                   (colord-service)
+                   (geoclue-service)
+                   (udisks-service)
+                   (upower-service)
+
                    (bluetooth-service)
                    (service cups-service-type
                     (cups-configuration
                      (web-interface? #t)))
 
-                   ;; Jobs.
-                   ;; TODO: Try mcron and rotlog.
-
-                   (rngd-service)
                    %base-services))
 
   ;; Allow resolution of '.local' host names with mDNS.
