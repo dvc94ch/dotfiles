@@ -1,7 +1,9 @@
 [user]
 	name = David Craven
 	email = david@craven.ch
-	signingkey = 9C0BECDB
+	signingkey = E28D2C23
+[commit]
+	gpgsign = true
 [alias]
 	unadd = reset HEAD
 	history = log --oneline --abbrev-commit --all --graph --decorate --color

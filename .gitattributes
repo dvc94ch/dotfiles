@@ -15,4 +15,4 @@
 .dockercfg filter=git-crypt diff=git-crypt
 
 # gnupg
-.gnupg/*.gpg filter=git-crypt diff=git-crypt
+.gnupg/*.asc filter=git-crypt diff=git-crypt

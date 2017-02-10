@@ -27,7 +27,8 @@
 
 # gnupg - ignore everything except gpg files
 /.gnupg/*
-!/.gnupg/*.gpg
+!/.gnupg/*.conf
+!/.gnupg/*.asc
 
 # gnucash - ignore everything except gnucash files
 /.gnucash/*
@@ -56,5 +57,9 @@
 /.thumbnails
 /.ssh/known_hosts
 /.mutt/cache
+/.mutt/certificates
 /.pki
 /.local
+/.wine
+/.mozilla
+/.password-store
