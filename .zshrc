@@ -14,3 +14,13 @@ source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
 
 # Load aliases.
 source ~/.aliases
+
+# Set LD_LIBRARY_PATH
+if [ -z $GUIX_ENVIRONMENT ]; then
+else
+    export LD_LIBRARY_PATH=$LIBRARY_PATH
+fi
+
+# Add cargo binaries to environment and set CC for cargo
+source $HOME/.cargo/env
+export PATH=/bin:$HOME/repos/freedom-e-sdk/toolchain/bin:$PATH

@@ -6,8 +6,8 @@
              (guix build-system trivial)
              (ice-9 match))
 (use-service-modules admin avahi base cups dbus desktop mcron networking sddm xorg)
-(use-package-modules admin certs cpio cups curl disk dns emacs firmware fonts
-                     fontutils gnome gnupg gstreamer idutils linux mail
+(use-package-modules admin certs commencement cpio cups curl disk dns emacs firmware fonts
+                     fontutils gcc gnome gnupg gstreamer idutils linux mail
                      password-utils patchutils shells ssh terminals version-control)
 
 (define-public linux-firmware
@@ -159,6 +159,10 @@
                         #:linux-module-directory '#$kodir)))
      #:name "base-initrd")))
 
+;;(define nitrokey-udev-rule
+;;  (udev-rule "90-nitrokey.rules"
+;;             "ATTR{idVendor}=="20a0" ATTR{idProduct}=="4108" GROUP=\"wheel\""))
+
 (operating-system
   (host-name "xps13")
   (timezone "Europe/Zurich")
@@ -200,7 +204,7 @@
                    emacs font-adobe-source-code-pro
                    colordiff gptfdisk tree which
                    nss-certs `(,bind "utils") curl gptfdisk
-                   gnupg pinentry openssh picocom mutt
+                   gnupg pinentry-gnome3 openssh picocom mutt
                    git `(,git "send-email") git-crypt ; git-annex
                    fontconfig font-dejavu font-ubuntu font-gnu-unifont
                    gst-plugins-base gst-plugins-good gst-plugins-bad gst-libav
@@ -215,6 +219,7 @@
                             (mcron-configuration))
                    (service rottlog-service-type
                             (rottlog-configuration))
+
 
                    ;; Network.
                    (service network-manager-service-type
@@ -238,6 +243,12 @@
                     (cups-configuration
                      (web-interface? #t)))
 
+                   (extra-special-file "/bin/cc"
+                                       (file-append gcc-toolchain-6 "/bin/gcc"))
+                   (extra-special-file "/usr/bin/env"
+                                       (file-append coreutils "/bin/env"))
+                   (extra-special-file "/lib64/ld-linux-x86-64.so.2"
+                                       (file-append glibc "/lib/ld-linux-x86-64.so.2"))
                    %base-services))
 
   ;; Allow resolution of '.local' host names with mDNS.

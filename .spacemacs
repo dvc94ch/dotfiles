@@ -18,6 +18,10 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     markdown
+     javascript
+     rust
+     python
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -27,28 +31,28 @@ values."
      better-defaults
      c-c++
      emacs-lisp
-     extra-langs
+     ;; extra-langs
      erc
      git
-     haskell
-     html
-     idris
-     javascript
-     latex
-     markdown
-     org
-     python
-     rust
+     ;; haskell
+     ;; html
+     ;; idris
+     ;; javascript
+     ;; latex
+     ;; markdown
+     ;; org
+     ;; python
+     ;; rust
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     scala
+     ;; scala
      scheme
-     sql
+     ;; sql
      spell-checking
      syntax-checking
      version-control
-     yaml
+     ;; yaml
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -263,20 +267,20 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loadedyou should place your code here."
 
-  (defun axels-mail-mode-hook ()
-    (turn-on-auto-fill) ;;; Auto-Fill is necessary for mails
-    (turn-on-font-lock) ;;; Font-Lock is always cool *g*
-    (flush-lines "^\\(> \n\\)*> -- \n\\(\n?> .*\\)*")
-                      ;;; Kills quoted sigs.
-    (not-modified)      ;;; We haven't changed the buffer, haven't we? *g*
-    (mail-text)         ;;; Jumps to the beginning of the mail text
-    (setq make-backup-files nil)
-                      ;;; No backups necessary.
-    )
+  ;;(defun axels-mail-mode-hook ()
+  ;;  (turn-on-auto-fill) ;;; Auto-Fill is necessary for mails
+  ;;  (turn-on-font-lock) ;;; Font-Lock is always cool *g*
+  ;;  (flush-lines "^\\(> \n\\)*> -- \n\\(\n?> .*\\)*")
+  ;;                    ;;; Kills quoted sigs.
+  ;;  (not-modified)      ;;; We haven't changed the buffer, haven't we? *g*
+  ;;  (mail-text)         ;;; Jumps to the beginning of the mail text
+  ;;  (setq make-backup-files nil)
+  ;;                    ;;; No backups necessary.
+  ;;  )
 
-  (or (assoc "mutt-" auto-mode-alist)
-      (setq auto-mode-alist (cons '("mutt-" . mail-mode) auto-mode-alist)))
-  (add-hook 'mail-mode-hook 'axels-mail-mode-hook)
+  ;;(or (assoc "mutt-" auto-mode-alist)
+  ;;    (setq auto-mode-alist (cons '("mutt-" . mail-mode) auto-mode-alist)))
+  ;;(add-hook 'mail-mode-hook 'axels-mail-mode-hook)!#
 
   (server-start)        ;;; For use with emacsclient
 
@@ -288,41 +292,41 @@ explicitly specified that a variable should be set before a package is loadedyou
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   ;; Autosave/reload scratch file.
-  (defvar persistent-scratch-filename
-    "~/.emacs-persistent-scratch"
-    "Location of *scratch* file contents for persistent-scratch.")
-  (defvar persistent-scratch-backup-directory
-    "~/.emacs-persistent-scratch-backups/"
-    "Location of backups of the *scratch* buffer contents for
-    persistent-scratch.")
+  ;;(defvar persistent-scratch-filename
+  ;;  "~/.emacs-persistent-scratch"
+  ;;  "Location of *scratch* file contents for persistent-scratch.")
+  ;;(defvar persistent-scratch-backup-directory
+  ;;  "~/.emacs-persistent-scratch-backups/"
+  ;;  "Location of backups of the *scratch* buffer contents for
+  ;;  persistent-scratch.")
 
-  (defun make-persistent-scratch-backup-name ()
-    "Create a filename to backup the current scratch file by
-  concatenating PERSISTENT-SCRATCH-BACKUP-DIRECTORY with the
-  current date and time."
-    (concat
-     persistent-scratch-backup-directory
-     (replace-regexp-in-string
-      (regexp-quote " ") "-" (current-time-string))))
+  ;;(defun make-persistent-scratch-backup-name ()
+  ;;  "Create a filename to backup the current scratch file by
+  ;;concatenating PERSISTENT-SCRATCH-BACKUP-DIRECTORY with the
+  ;;current date and time."
+  ;;  (concat
+  ;;   persistent-scratch-backup-directory
+  ;;   (replace-regexp-in-string
+  ;;   (regexp-quote " ") "-" (current-time-string))))
 
-  (defun save-persistent-scratch ()
-    "Write the contents of *scratch* to the file name
-  PERSISTENT-SCRATCH-FILENAME, making a backup copy in
-  PERSISTENT-SCRATCH-BACKUP-DIRECTORY."
-    (with-current-buffer (get-buffer "*scratch*")
-      (if (file-exists-p persistent-scratch-filename)
-          (copy-file persistent-scratch-filename
-                     (make-persistent-scratch-backup-name)))
-      (write-region (point-min) (point-max)
-                    persistent-scratch-filename)))
+  ;;(defun save-persistent-scratch ()
+  ;;  "Write the contents of *scratch* to the file name
+  ;;PERSISTENT-SCRATCH-FILENAME, making a backup copy in
+  ;;PERSISTENT-SCRATCH-BACKUP-DIRECTORY."
+  ;;  (with-current-buffer (get-buffer "*scratch*")
+  ;;    (if (file-exists-p persistent-scratch-filename)
+  ;;        (copy-file persistent-scratch-filename
+  ;;                   (make-persistent-scratch-backup-name)))
+  ;;    (write-region (point-min) (point-max)
+  ;;                  persistent-scratch-filename)))
 
-  (defun load-persistent-scratch ()
-    "Load the contents of PERSISTENT-SCRATCH-FILENAME into the
-  scratch buffer, clearing its contents first."
-    (if (file-exists-p persistent-scratch-filename)
-        (with-current-buffer (get-buffer "*scratch*")
-          (delete-region (point-min) (point-max))
-          (shell-command (format "cat %s" persistent-scratch-filename) (current-buffer)))))
+  ;;(defun load-persistent-scratch ()
+  ;;  "Load the contents of PERSISTENT-SCRATCH-FILENAME into the
+  ;;scratch buffer, clearing its contents first."
+  ;;  (if (file-exists-p persistent-scratch-filename)
+  ;;      (with-current-buffer (get-buffer "*scratch*")
+  ;;        (delete-region (point-min) (point-max))
+  ;;        (shell-command (format "cat %s" persistent-scratch-filename) (current-buffer)))))
 
 
   ;;(load-persistent-scratch)
@@ -346,43 +350,43 @@ explicitly specified that a variable should be set before a package is loadedyou
      "\\.so$" "\\.a$" "\\.elc$" "\\.fas$" "\\.fasl$" "\\.pyc$" "\\.pyo$" "\\.go$"))
 
   ;; Configure guix emacs plugin.
-  (let ((dir "~/guix/emacs"))
-    (add-to-list 'load-path dir)
-    (setq guix-load-path dir))
-  (require 'guix-autoloads nil t)
-  (setq guix-directory "~/guix")
+  ;;(let ((dir "~/guix/emacs"))
+  ;;  (add-to-list 'load-path dir)
+  ;;  (setq guix-load-path dir))
+  ;;(require 'guix-autoloads nil t)
+  ;;(setq guix-directory "~/guix")
 
-  (let ((dir "~/.emacs.d/private/local"))
-    (add-to-list 'load-path dir))
-  (require 'mutt)
+  ;;(let ((dir "~/.emacs.d/private/local"))
+  ;;  (add-to-list 'load-path dir))
+  ;;(require 'mutt)
 
   ;; Configure outgoing email settings.
-  (setq mail-user-agent 'message-user-agent)
+  ;;(setq mail-user-agent 'message-user-agent)
 
-  (setq user-mail-address "david@craven.ch"
-        user-full-name "David Craven")
+  ;;(setq user-mail-address "david@craven.ch"
+  ;;      user-full-name "David Craven")
 
-  (setq smtpmail-stream-type 'ssl
-        smtpmail-smtp-server "smtp.gmail.com"
-        smtpmail-smtp-service 465)
+  ;;(setq smtpmail-stream-type 'ssl
+  ;;      smtpmail-smtp-server "smtp.gmail.com"
+  ;;      smtpmail-smtp-service 465)
 
   ;; Configure gud keybindings.
-  (spacemacs/set-leader-keys "ags" 'gud-gdb)
-  (spacemacs/set-leader-keys "agr" 'gud-run)
-  (spacemacs/set-leader-keys "agc" 'gud-cont)
-  (spacemacs/set-leader-keys "agn" 'gud-next)
-  (spacemacs/set-leader-keys "agi" 'gud-nexti)
-  (spacemacs/set-leader-keys "agb" 'gud-break)
+  ;;(spacemacs/set-leader-keys "ags" 'gud-gdb)
+  ;;(spacemacs/set-leader-keys "agr" 'gud-run)
+  ;;(spacemacs/set-leader-keys "agc" 'gud-cont)
+  ;;(spacemacs/set-leader-keys "agn" 'gud-next)
+  ;;(spacemacs/set-leader-keys "agi" 'gud-nexti)
+  ;;(spacemacs/set-leader-keys "agb" 'gud-break)
 
-  (setq haskell-process-suggest-remove-import-lines t)
-  (setq haskell-process-auto-import-loaded-modules t)
-  (setq haskell-process-log t)
-  (setq haskell-process-type 'cabal-repl)
-  (spacemacs/set-leader-keys "ahl" 'haskell-process-load-or-reload)
-  (spacemacs/set-leader-keys "ahz" 'haskell-process-interactive-switch)
-  (spacemacs/set-leader-keys "aht" 'haskell-process-do-type)
-  (spacemacs/set-leader-keys "ahb" 'haskell-process-cabal-build)
-  (spacemacs/set-leader-keys "ahc" 'haskell-process-cabal)
+  ;;(setq haskell-process-suggest-remove-import-lines t)
+  ;;(setq haskell-process-auto-import-loaded-modules t)
+  ;;(setq haskell-process-log t)
+  ;;(setq haskell-process-type 'cabal-repl)
+  ;;(spacemacs/set-leader-keys "ahl" 'haskell-process-load-or-reload)
+  ;;(spacemacs/set-leader-keys "ahz" 'haskell-process-interactive-switch)
+  ;;(spacemacs/set-leader-keys "aht" 'haskell-process-do-type)
+  ;;(spacemacs/set-leader-keys "ahb" 'haskell-process-cabal-build)
+  ;;(spacemacs/set-leader-keys "ahc" 'haskell-process-cabal)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
