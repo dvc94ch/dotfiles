@@ -22,5 +22,7 @@ else
 fi
 
 # Add cargo binaries to environment and set CC for cargo
-source $HOME/.cargo/env
-export PATH=/bin:$HOME/repos/freedom-e-sdk/toolchain/bin:$PATH
+# source $HOME/.cargo/env
+# export PATH=/bin:$HOME/repos/freedom-e-sdk/toolchain/bin:$PATH
+
+export GUIX_LD_WRAPPER_ALLOW_IMPURITIES=y
